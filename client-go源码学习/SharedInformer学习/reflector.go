@@ -159,10 +159,12 @@ func (r *Reflector) ListAndWatch(stopCh <-chan struct{}) error {
 			case options.ResourceVersion != "" && options.ResourceVersion != "0":
 				p.PageSize = 0
 			}
-			list, paginatedResult, err = p.List(context.Background(), options)
+			// 此处第二个返回值应该是paginatedResult，但是由于函数版本
+			// 此处的返回值移除
+			list, err = p.List(context.Background(), options)
 			if isExpiredError(err) {
 				r.setIsLastSyncResourceVersionExpired(true)
-				list, paginatedResult, err = p.List(context.Background(), metav1.ListOptions{ResourceVersion: r.relistResourceVersion()})
+				list, err = p.List(context.Background(), metav1.ListOptions{ResourceVersion: r.relistResourceVersion()})
 			}
 			close(listCh)
 		}()
